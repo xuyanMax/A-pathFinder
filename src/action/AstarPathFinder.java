@@ -1,8 +1,8 @@
 package action;
 import java.util.List;
 import java.util.ArrayList;
-
 import entity.location;
+
 
 public class AstarPathFinder {
 	
@@ -17,7 +17,7 @@ public class AstarPathFinder {
 		
 	}
 	
-	public List<location> findPath(location start, location dest, double[][]road, double[][]node) {
+	public List<location> findPath(location start, location dest, double[][]road, double[][]node, double[][]poly_nodes) {
 		
 	// 一旦确定startNode，需要初始化所有nodes 到startNode的G 值和 H 值
 	//不初始化则为0；
@@ -27,6 +27,31 @@ public class AstarPathFinder {
 		openList.add(start);
 		
 		location current;
+		
+		//预先遍历所有node结点，凡事在多边形区域内的结点，则加入到close list，起到排除的目的
+		boolean isInside = false;
+		double[] temp = new double[3];
+		
+		for(int i=0; i<node.length; i++) {
+			
+			//二维数组赋值到一维数组，存储node结点id x y值
+			//传入 isInside函数判断
+			for (int k=0; k<node[0].length;k++) {
+				
+				temp[k] = node[i][k];
+			}
+			isInside = isInside(poly_nodes, temp);
+			
+			if (isInside) {
+				
+				location inLocation = new location(node[i][1], node[i][2], node[i][0]);
+				
+				closeList.add(inLocation);
+				System.out.println("Node (ID) " + inLocation.getId() + " is added to close list");
+				
+			}
+		}
+
 		
 		do{
 			
@@ -60,6 +85,7 @@ public class AstarPathFinder {
 					lo.setHSteps(Hsteps(lo,dest));
 					
 					//重新计算并设置F值=G+H
+					//同意 H G 计量单位
 					lo.setFSteps(Hsteps(lo,dest) + lo.getGlength());
 					
 					//设置父节点
@@ -263,5 +289,37 @@ public class AstarPathFinder {
 		return Math.sqrt(distanceX + distanceY);
 	}
 	
+	
+	// node_info 包括 横纵坐标
+	private boolean isInside(double[][] poly_nodes, double[] node) {
+		
+		boolean success =false;
+		int numOfIntersection =0;
+		
+		for (int i=0, j = poly_nodes.length-1; i < poly_nodes.length; j = i++) {
+			
+			// 当前点的y坐标在polygon相邻两点组成边竖直方向(y分量)的中部
+			//不同是满足 != 即node的y值在相邻两点y值的中间
+			//i:1;j:2
+			
+			if ((poly_nodes[i][2] > node[2]) != (poly_nodes[j][2] > node[2])) {
+				
+				//交点x = (Y-y2)(x2-x1)/(y2-y1) + x2 > 
+				if ( ( (node[2]-poly_nodes[j][2])*(poly_nodes[j][1]-poly_nodes[i][1])/(poly_nodes[j][2]-poly_nodes[i][2]) + poly_nodes[j][1] ) > node[1] ) {
+					
+					numOfIntersection++;
+					
+				}
+			}
+		}
+		
+		if (numOfIntersection % 2 == 1) 
+			
+			success = true;
+		
+		
+		return success;
+		
+	}
 
 }
