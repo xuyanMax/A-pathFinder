@@ -304,7 +304,10 @@ public class AstarPathFinder {
 			
 			if ((poly_nodes[i][2] > node[2]) != (poly_nodes[j][2] > node[2])) {
 				
-				//交点x = (Y-y2)(x2-x1)/(y2-y1) + x2 > 
+				//交点x = (Y-y2)(x2-x1)/(y2-y1) + x2 > 测试点的横坐标
+				// 计算所有比测试点横坐标小的的焦点，如果为奇数，则在多边形内部，否则为外部
+				//references: http://stackoverflow.com/questions/8721406/how-to-determine-if-a-point-is-inside-a-2d-convex-polygon
+				
 				if ( ( (node[2]-poly_nodes[j][2])*(poly_nodes[j][1]-poly_nodes[i][1])/(poly_nodes[j][2]-poly_nodes[i][2]) + poly_nodes[j][1] ) > node[1] ) {
 					
 					numOfIntersection++;
@@ -321,5 +324,8 @@ public class AstarPathFinder {
 		return success;
 		
 	}
+	
+	
+	
 
 }

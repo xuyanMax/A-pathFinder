@@ -2,9 +2,7 @@ package util;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-
-import javax.swing.border.EmptyBorder;
-
+import java.util.Timer;
 import java.util.Iterator;
 import action.AstarPathFinder;
 import entity.location;
@@ -42,21 +40,35 @@ public class AstarPathFinderTest {
 		int randNumStart =r1.nextInt(range) + 1;
 		int randNumEnd = r1.nextInt(range) + 1;
 	
+		//固定一组起点和终点结点的id
+		int fixedNumStart =10661-1 ;
+		int fixedNumEnd=16938-1;
 		
-		//System.out.println(randNumStart +" " + node[randNumStart][2]);
+		
 		//创建location类型源点、终点
-		location startNode = new location(node[randNumStart][1], node[randNumStart][2],node[randNumStart][0] );
-		location endNode = new location(node[randNumEnd][1], node[randNumEnd][2], node[randNumEnd][0]);
+		//fixedNumStart, fixedNumEnd 分别替换randNumStart, randNumEnd.
+		
+		location startNode = new location(node[fixedNumStart][1], node[fixedNumStart][2],node[fixedNumStart][0] );
+		location endNode = new location(node[fixedNumEnd][1], node[fixedNumEnd][2], node[fixedNumEnd][0]);
 		System.out.println("Randomly selet two nodes from the dataset.");
 		System.out.println("Start Node ID: "+ startNode.getId());
 		System.out.println("End Node ID: " + endNode.getId() );
 		
 		System.out.println("The program is running.. Please wait.");
+		
+		//设置timer 
+		long t_start = System.currentTimeMillis();
+		
 		path = AstarPath.findPath(startNode, endNode, road, node, poly_nodes);
-		System.out.println("The path is displayed by node ID from back to forth");
+		
+		long t_end = System.currentTimeMillis();
+		
+		long t_spend = t_end - t_start;
+		
+		
 		//System.out.println(path);
 		if (!path.isEmpty()) {
-			
+			System.out.println("The path is displayed by node ID from back to forth");
 			Iterator<location> it = path.iterator();
 			int num=0;
 			
@@ -69,8 +81,11 @@ public class AstarPathFinderTest {
 		} else {
 			System.out.println("No path is found.Try another nodes.");
 		}
-
+		//输出程序运行时间
+		
+		System.out.println("The program takes " + t_spend + " milliseconds.");
 		//寻找相邻walkable节点
+		
 				
 	}
 	
