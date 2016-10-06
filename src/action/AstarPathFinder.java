@@ -110,7 +110,8 @@ public class AstarPathFinder {
 					//设置父节点
 					lo.setPrevious(current);
 
-					System.out.println(lo.getGlength() +" "+lo.getFSteps());
+//					//测试
+//					System.out.println(lo.getGlength() +" "+lo.getFSteps());
 					
 					//添加每一个相邻可通过节点到openList 
 					openList.add(lo);
@@ -166,6 +167,8 @@ public class AstarPathFinder {
 				
 				destination.setGlength(current.getGlength());
 				
+				//todo：得到终点total Glength 消耗及 total 时间消耗。
+				
 				System.out.println("The total length between Node " + start.getId() + " and "+ dest.getId()+" is "+ destination.getGlength());
 				
 				path.add(destination);
@@ -179,19 +182,19 @@ public class AstarPathFinder {
 					path.add(destination);
 				}
 			}
-			//验证初始化赋值部分代码
-			for (int k=0;k<100;k++) {
-				location location = node_map.get(node[k][0]);
-				System.out.println(location.getId());
-				List<location> edge = location.getEdge();
-				Iterator <location> it = edge.iterator();
-				while(it.hasNext()) {
-					
-					//验证结果：所有node_map内结点的edge链表数据初始化正常，非空。排除初始化
-					System.out.println(it.next().getGlength());
-				}
-					}
-			//验证结束
+//			//验证初始化赋值部分代码
+//			for (int k=0;k<100;k++) {
+//				location location = node_map.get(node[k][0]);
+//				System.out.println(location.getId());
+//				List<location> edge = location.getEdge();
+//				Iterator <location> it = edge.iterator();
+//				while(it.hasNext()) {
+//					
+//					//验证结果：所有node_map内结点的edge链表数据初始化正常，非空。排除初始化
+//					System.out.println(it.next().getGlength());
+//				}
+//					}
+//			//验证结束
 		return path;
 		
 		
@@ -262,8 +265,8 @@ public class AstarPathFinder {
 			while (it.hasNext()) {
 				
 				location curr_edge_node = new location(it.next());
-				
-				System.out.println(curr_edge_node.getGlength() +" spd: "+ curr_edge_node.getSpd());
+				//测试部分
+				//System.out.println(curr_edge_node.getGlength() +" spd: "+ curr_edge_node.getSpd());
 				walkableLos.add(curr_edge_node);
 				curr_edge_node.setPrevious(current);
 				
@@ -301,9 +304,13 @@ public class AstarPathFinder {
 		}
 		double minFSteps = openList.get(0).getFSteps();
 		double tmpFSteps = 0;
+		double minTimeCost = openList.get(0).getGlength()/openList.get(0).getSpd();
+		double tempTimeCost = 0;
 		location lowestFlocation = openList.get(0);
 		
 		//从openlist遍历找到F值最小的lo
+		//By Distance
+		boolean byDistance = false;
 		
 		for(location lo : openList){
 			
@@ -316,6 +323,25 @@ public class AstarPathFinder {
 				
 				lowestFlocation = lo;
 			}
+			
+		
+		}
+		// 考虑上时间 by Time
+		boolean byTime = false;
+		
+		if (byTime) {
+		
+		for (location lo: openList) {
+			
+			tempTimeCost = lo.getGlength()/lo.getSpd();
+			
+			if (tempTimeCost < minTimeCost) {
+				
+				minTimeCost = tempTimeCost;
+				lowestFlocation = lo;
+				
+			}
+		}
 		}
 		return lowestFlocation;
 	}
@@ -347,6 +373,7 @@ public class AstarPathFinder {
 	
 	
 	// node_info 包括 横纵坐标
+	
 	private boolean isInside(double[][] poly_nodes, double[] node) {
 		
 		boolean success =false;

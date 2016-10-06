@@ -19,7 +19,10 @@ import entity.location;
 public class data {
 	
 	private double[][] nodes = new double[42408][3];
-	private double [][] road = new double[96850][5];
+	
+	//road length 5 -> 6 
+	//road[][road[0].length] 表示该结点 是否支持单双向。0：false；1:true
+	private double [][] road = new double[96850][6];
 	
 	
 	//hashMap only accepts Object as key and value, does not allow primitive data types as arguments.
@@ -135,8 +138,8 @@ public class data {
 			e.printStackTrace();
 		}
 		
-
-		initData(nodes, road);
+		//＊＊＊＊＊＊＊＊＊＊＊＊＊＊
+	//	initData(nodes, road);
 		
 	}
 	
@@ -352,6 +355,31 @@ public class data {
 	   }
 		return road_mapping;
 		
+	}
+	int k=0;
+	public void road_bid_test(){
+		
+		for (int i=0; i<road.length;i++) {
+			
+			for (int j=0;j<road.length;j++) {
+				
+				
+				if (road[i][0] == road[j][0] * (-1)){
+					
+					road[i][5] = road[j][5] = 1;
+					//83846
+					//System.out.println(k);
+					k++;
+				} else{
+					
+					//
+					road[i][5] = road[j][5] = 0;
+					
+				}
+			
+			}
+			
+		}
 	}
 		
 	
