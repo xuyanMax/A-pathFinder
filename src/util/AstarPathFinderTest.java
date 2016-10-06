@@ -1,8 +1,8 @@
 package util;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
-import java.util.Timer;
 import java.util.Iterator;
 import action.AstarPathFinder;
 import entity.location;
@@ -21,8 +21,13 @@ public class AstarPathFinderTest {
 		 AstarPathFinder AstarPath = new AstarPathFinder();
 		
 		data file = new data();
+		//file.importHashMap_Road();
+		
+		
 		double[][] node = file.getNodes();
 		double[][] road = file.getRoad();	
+		HashMap<String, Double[]>road_map = file.getRoadMap();
+		HashMap<Double, location>node_map = file.getNodeMap();
 		
 		// polygonal constraints represented by 5 nodes coordinates.
 		// stored in 二维数组；五边形五个顶点均不属于nodes节点
@@ -59,14 +64,14 @@ public class AstarPathFinderTest {
 		//设置timer 
 		long t_start = System.currentTimeMillis();
 		
-		path = AstarPath.findPath(startNode, endNode, road, node, poly_nodes);
+		path = AstarPath.findPath(startNode, endNode, road, node, poly_nodes, road_map, node_map);
 		
 		long t_end = System.currentTimeMillis();
 		
 		long t_spend = t_end - t_start;
 		
 		
-		//System.out.println(path);
+		
 		if (!path.isEmpty()) {
 			System.out.println("The path is displayed by node ID from back to forth");
 			Iterator<location> it = path.iterator();

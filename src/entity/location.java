@@ -9,7 +9,7 @@ public class location {
 	private double Glength;
 	private double spd;
 	
-	private List<location> edge;
+	private List<location> edge = new ArrayList<location>();;
 	private double Hsteps;//h
 	private double Fsteps;//f
 	private location previous;
@@ -19,12 +19,20 @@ public class location {
 		return edge;
 	}
 
-
+	//存储，所有与该结点相连接的结点
 	public void setNodeToEdge(location node) {
 		
 		this.edge.add(node);
 		
 	}
+	// 复制构造函数
+	public location (location loc){
+		
+		this(loc.getX(), loc.getY(), loc.getId(), loc.getEdge(), loc.getGlength(), loc.getSpd());
+		
+	}
+	
+
 	
 	public location (double id, double x, double y, double Glength, double spd){
 		
@@ -36,6 +44,10 @@ public class location {
 		this.edge = new ArrayList<location>();
 		
 	}
+	public location(){
+		
+	}
+
 
 	
 	public location (double x, double y, double id) {
@@ -44,7 +56,23 @@ public class location {
 		this.y  = y;
 		this.id = id;
 
-		this.edge = new ArrayList<location>();
+		
+	}
+	
+	public location (double x, double y, double id, List<location>edge) {
+		
+		this.x  = x;
+		this.y  = y;
+		this.id = id;
+		this.edge = edge;	
+	}
+	public location (double x, double y, double id, List<location>edge, double Glength, double spd) {
+		this.x=x;
+		this.y=y;
+		this.id=id;
+		this.edge=edge;
+		this.Glength=Glength;
+		this.spd=spd;
 		
 	}
 	
