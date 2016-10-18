@@ -21,7 +21,6 @@ public class AstarPathFinderTest {
 		 AstarPathFinder AstarPath = new AstarPathFinder();
 		
 		data file = new data();
-		file.road_bid_test();
 		//file.importHashMap_Road();
 		
 		

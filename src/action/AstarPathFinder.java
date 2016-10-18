@@ -1,11 +1,12 @@
 package action;
 import java.util.List;
 
-
+import org.omg.PortableInterceptor.LOCATION_FORWARD;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedList;
 
 import entity.location;
 
@@ -19,6 +20,8 @@ public class AstarPathFinder {
 	
 	public AstarPathFinder(){
 		
+		// arraList 用于get set
+		//linkedList 用于 remover add
 		openList = new ArrayList<location>();
 		closeList = new ArrayList<location>();
 		
@@ -30,11 +33,8 @@ public class AstarPathFinder {
 									HashMap<String, Double[]> road_map, HashMap<Double, location> node_map) {
 		
 	// 一旦确定startNode，需要初始化所有nodes 到startNode的G 值和 H 值
-	//不初始化则为0；
-		
-		//initData(node, road);
-		
-		//System.out.println(road_map.size());
+	//不初始化则初始值为0；
+	
 		
 		List<location> path = new ArrayList <location> ();
 		
@@ -43,27 +43,21 @@ public class AstarPathFinder {
 		location current;
 		
 		//预先遍历所有node结点，凡事在多边形区域内的结点，则加入到close list，起到排除的目的
-		boolean isInside = false;
 		double[] temp = new double[3];
 		
 		for(int i=0; i<node.length; i++) {
 			
 			//二维数组赋值到一维数组，存储node结点id x y值
 			//传入 isInside函数判断
-			for (int k=0; k<node[0].length;k++) {
-				
+			for (int k=0; k<node[0].length;k++) 
 				temp[k] = node[i][k];
-			}
 			
-			isInside = isInside(poly_nodes, temp);
 			
-			if (isInside) {
+			if (isInside(poly_nodes, temp)) {
 				
 				location inLocation = new location(node[i][1], node[i][2], node[i][0]);
 				
 				closeList.add(inLocation);
-				
-				//node_map.remove(node[i][0]);
 				
 				System.out.println("Node (ID) " + inLocation.getId() + " is added to close list and removed from node hashmap.");
 				
@@ -119,37 +113,21 @@ public class AstarPathFinder {
 					
 				} else{
 					
-					lo.setPrevious(current);
+					//虽然都是lo 但是里面存储的信息不同
 					
-					
-				//比较 G值大小，从源点到lo点 vs 从源点到current点+到lo点
-				//	这段没有用
-    			//        ****
-				// ****  START ****	
-				// ****   ****
-//					
-//					for (int i=0;i<road.length;i++) {
-//						
-//						if (road[i][1] == current.getId() && road[i][2] == lo.getId()) {
-//							
-//							if (current.getGlength() + lo.getGlength() < road[i][3]) {
-//						//一下情况不可能存在，如果lo与current的父结点连同，且满足下列条件那么lo应当是current，因此不成立。
-						////if (current.getGlength() + lo.getGlength() > lo -> current.getPrevious .getGlength()) {
-						////			lo.setPrevious(current.getPrevious());			}
-					
-//								lo.setPrevious(current.getPrevious());
-//							}
-//							
-//						}
-//						
-//					}
-					
-					//	
-	    			//        ****
-					// **** END  ****	
-					// ****   ****
-
-					
+					int index = openList.indexOf(lo);
+					System.out.println("+++++");
+					location lo_compare = openList.get(index);
+					if(lo.getGlength() + current.getGlength() < lo_compare.getGlength()) {
+						
+						lo.setGlength(lo.getGlength() + current.getGlength());
+						
+						lo.setFSteps(Hsteps(lo,dest) + lo.getGlength());
+						openList.remove(lo_compare);
+						openList.add(lo);
+						System.out.println("----");
+						lo.setPrevious(current);
+					}
 					
 					
 				}
@@ -203,51 +181,7 @@ public class AstarPathFinder {
 	private List<location> getWalkableAdjacentLocations(location current, double[][]road, double[][]node, HashMap<Double, location>node_map){
 	
 		List<location> walkableLos = new ArrayList<location>();
-		
-		//******************************************
-		//**************  未预处理数据 start *************
-		//******************************************
-		//搜索二维数组map中与 current节点相链接的节点
-		//已知：current节点的ID，利用ID在road表中寻找(road表中starid、endid为对称关系。所以当下只用搜索startid)
-		
-		//**********************
-//		int i, j;
-//		
-//		for(i=0; i < road.length; i++) {
-//			
-//			// STARTID
-//			if (road[i][1] == current.getId()) {
-//				
-//				
-//				//从node二维数组中寻找与current node 相互连通node 的坐标值
-//				
-//				for (j=0; j<node.length; j++) {
-//					
-//					//依据endid找
-//					//创建location 存储id x y
-//				
-//					
-//					if (road[i][2] == node[j][0]) {
-//					
-//						location lo = new location(node[j][0], node[j][1], node[j][2], road[i][3], road[i][4]);
-//						
-//						//把该点加入到current节点的 edge列表
-//					     //current.setNodeToEdge(lo);
-//						//把该点加入walkable list
-//						
-//						lo.setPrevious(current);
-//						walkableLos.add(lo);
-//						
-//					}
-//					
-//					
-//				}
-//			
-//			}
-//		}
-		//************************
-		//*****未预处理数据 end*****
-		//************************
+
 		
 		//********************* 对预处理的数据开始调用 *******************
 		//******************   *******************   ****************
@@ -269,16 +203,8 @@ public class AstarPathFinder {
 				//System.out.println(curr_edge_node.getGlength() +" spd: "+ curr_edge_node.getSpd());
 				walkableLos.add(curr_edge_node);
 				curr_edge_node.setPrevious(current);
-				
-				
-				//System.out.println("Added to walkableLos.");
 			}
 		}
-		
-		
-		
-		
-		
 		//********************* 对预处理的数据调用 结束 *******************
 		//******************   *******************   ****************
 		
@@ -304,13 +230,11 @@ public class AstarPathFinder {
 		}
 		double minFSteps = openList.get(0).getFSteps();
 		double tmpFSteps = 0;
-		double minTimeCost = openList.get(0).getGlength()/openList.get(0).getSpd();
-		double tempTimeCost = 0;
 		location lowestFlocation = openList.get(0);
 		
 		//从openlist遍历找到F值最小的lo
 		//By Distance
-		boolean byDistance = false;
+
 		
 		for(location lo : openList){
 			
@@ -323,26 +247,8 @@ public class AstarPathFinder {
 				
 				lowestFlocation = lo;
 			}
-			
-		
 		}
-		// 考虑上时间 by Time
-		boolean byTime = false;
-		
-		if (byTime) {
-		
-		for (location lo: openList) {
-			
-			tempTimeCost = lo.getGlength()/lo.getSpd();
-			
-			if (tempTimeCost < minTimeCost) {
-				
-				minTimeCost = tempTimeCost;
-				lowestFlocation = lo;
-				
-			}
-		}
-		}
+
 		return lowestFlocation;
 	}
 	

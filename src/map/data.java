@@ -73,19 +73,10 @@ public class data {
 					}
 				
 				}
-//				for (int j=0; j < node_line.length; j++) {
-//					
-//					 node_import [i][j] = node_line[j];
-//			
-//				}
 				
 				i++;
 				w++;
 			}
-			
-		
-			
-			
 			
 		} catch (FileNotFoundException e) {
 			
@@ -121,15 +112,10 @@ public class data {
 						this.road[q][k] = Double.parseDouble(road_line[k]);
 						
 					}
-					
-					
 				}
 				j++;q++;
 				
 			}
-			
-					
-			
 		} catch (FileNotFoundException e) {
 		
 			e.printStackTrace();
@@ -139,7 +125,7 @@ public class data {
 		}
 		
 		//＊＊＊＊＊＊＊＊＊＊＊＊＊＊
-	//	initData(nodes, road);
+		initData(nodes, road);
 		
 	}
 	
@@ -213,10 +199,6 @@ public class data {
 							node_map.put(node[i][0], locStart_temp);
 							
 						}
-						
-						
-						
-						
 					}
 					
 				}
