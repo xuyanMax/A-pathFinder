@@ -33,10 +33,10 @@ public class data {
 		
 		
 		//key:node_id, value: location
-		node_map = new HashMap<Double, location>(nodes.length);
+		node_map = new HashMap<Double, location>(nodes.length*2);
 		
 		//key:startNode_id, value:String a = {"endNode_id","Glength","spd"};
-		road_map = new HashMap<String, Double[]>(road.length);
+		road_map = new HashMap<String, Double[]>(road.length*2);
 		
 		
 		

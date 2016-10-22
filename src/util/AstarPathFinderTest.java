@@ -3,6 +3,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
+import java.util.Stack;
 import java.util.Iterator;
 import action.AstarPathFinder;
 import entity.location;
@@ -16,7 +17,8 @@ public class AstarPathFinderTest {
 	public static void main(String[] args) {
 		
 	
-		List <location> path = new ArrayList<location>();
+		//List <location> path = new ArrayList<location>();
+		Stack <location> path = new Stack<location>();
 		
 		 AstarPathFinder AstarPath = new AstarPathFinder();
 		
@@ -73,16 +75,17 @@ public class AstarPathFinderTest {
 		
 		
 		if (!path.isEmpty()) {
-			System.out.println("The path is displayed by node ID from back to forth");
+			System.out.println("The path is displayed by node ID from goal to source.");
 			Iterator<location> it = path.iterator();
 			int num=0;
-			
 			while(it.hasNext()) {
-				
-			
 				System.out.println(num + ": "+ it.next().getId() );
+			//	it.next();
 				num++;
 			}
+			
+			System.out.println("The shortest path consists of "+num+" of nodes.");
+			
 		} else {
 			System.out.println("No path is found.Try another nodes.");
 		}

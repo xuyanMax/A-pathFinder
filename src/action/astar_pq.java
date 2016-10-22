@@ -1,47 +1,32 @@
 package action;
-import java.util.List;
-import java.util.Stack;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedList;
+import java.util.List;
+import java.util.Stack;
 
 import entity.location;
 
-
-public class AstarPathFinder {
+public class astar_pq {
 	
 	private List<location> openList;
-	private List<location> closeList;
+	private List<location> closedList;
 	
-	
-	
-	public AstarPathFinder(){
+	public astar_pq(){
 		
-		// arraList 用于get set
-		//linkedList 用于 remover add
-		openList = new ArrayList<location>();
-		closeList = new ArrayList<location>();
-		
-	
+		this.openList = new ArrayList<location>();
+		this.closedList = new ArrayList<location>();
 		
 	}
-	
 	public Stack<location> findPath(location start, location dest, double[][]road, double[][]node, double[][]poly_nodes, 
-									HashMap<String, Double[]> road_map, HashMap<Double, location> node_map) {
-		
-	// 一旦确定startNode，需要初始化所有nodes 到startNode的G 值和 H 值
-	//不初始化则初始值为0；
-	
-		
-//		List<location> path = new ArrayList <location> ();
+			HashMap<String, Double[]> road_map, HashMap<Double, location> node_map){
+				
 		Stack<location> path = new Stack<location>();
 		
 		openList.add(start);
-		
 		location current;
 		
-		//预先遍历所有node结点，凡事在多边形区域内的结点，则加入到close list，起到排除的目的
 		double[] temp = new double[3];
 		
 		for(int i=0; i<node.length; i++) {
@@ -56,119 +41,21 @@ public class AstarPathFinder {
 				
 				location inLocation = new location(node[i][1], node[i][2], node[i][0]);
 				
-				closeList.add(inLocation);
+				closedList.add(inLocation);
 				
 				System.out.println("Node (ID) " + inLocation.getId() + " is added to close list and removed from node hashmap.");
 				
 			}
 		}
-
 		
-		do{
-			
-			current = getLowestFscoreLocation(openList);
-			
-			closeList.add(current);
-			
-			openList.remove(current);
-			
-			if (closeList.contains(dest)) break;
-			
-			List <location> adjacentLocations = getWalkableAdjacentLocations(current, road, node, node_map);
-				
-			for (location lo : adjacentLocations) {
-				
-				//GO next node
-				if (closeList.contains(lo)) {
-					
-					continue;
-				
-				}
-				// 如果相邻点不在openlist，则加入openlist，并对F=G+H 进行计算
-				//G 可以从 node属性中读出，H 调用函数
-				
-			   if (!openList.contains(lo)){
-					
-					//优化G 累加G值
-					// +++ lo 到current 的G值
-					lo.setGlength(lo.getGlength() + current.getGlength());
-					
-					//计算H值(欧几里得)并存储到lo节点
-					lo.setHSteps(Hsteps(lo,dest));
-					
-					//重新计算并设置F值=G+H
-					//同意 H G 计量单位
-					lo.setFSteps(Hsteps(lo,dest) + lo.getGlength());
-					
-					//设置父节点
-					lo.setPrevious(current);
-
-//					//测试
-//					System.out.println(lo.getGlength() +" "+lo.getFSteps());
-					
-					//添加每一个相邻可通过节点到openList 
-					openList.add(lo);
-					
-					
-				} else{
-					
-					int index = openList.indexOf(lo);
-					location lo_compare = openList.get(index);
-					
-					List<location> adj = current.getEdge();
-					int index_adj = adj.indexOf(lo);
-					location lo_tmp = adj.get(index_adj);
-					
-					if(lo_tmp.getGlength() + current.getGlength() < lo_compare.getGlength()) {
-						
-						lo_compare.setGlength(lo_tmp.getGlength() + current.getGlength());
-						lo_compare.setFSteps(Hsteps(lo,dest) + lo_compare.getGlength());
-						lo_compare.setPrevious(current);
-						openList.remove(lo);
-						openList.add(lo_compare);
-					//	System.out.println("----");
-						
-					}
-					
-					
-				}
-				
-			}
-		}while(!openList.isEmpty() );
 		
-			location destination = null;
-			
-			//如closeList包含dest终点 则path找到
-			
-			if(closeList.contains(dest)){
-				
-				destination = current;
-				
-				destination.setGlength(current.getGlength());
-				
-				//todo：得到终点total Glength 消耗及 total 时间消耗。
-				
-				System.out.println("The total length between Node " + start.getId() + " and "+ dest.getId()+" is "+ destination.getGlength());
-				
-				//path.add(destination);
-				path.push(destination);
-				//从终点通过向前寻找父节点得到链表结构 path
-				
-				while(destination.getPrevious() != null){
-					
-					destination = destination.getPrevious();
-					
-					path.push(destination);
-				}
-			}
-
 		return path;
 		
 		
+		
 	}
-	
 	private List<location> getWalkableAdjacentLocations(location current, double[][]road, double[][]node, HashMap<Double, location>node_map){
-	
+		
 		List<location> walkableLos = new ArrayList<location>();
 
 		
@@ -265,10 +152,6 @@ public class AstarPathFinder {
 		//欧几里得距离估算 H值
 		return 100*Math.sqrt(distanceX*distanceX+ distanceY*distanceY);
 	}
-	
-	
-	// node_info 包括 横纵坐标
-	
 	private boolean isInside(double[][] poly_nodes, double[] node) {
 		
 		boolean success =false;
@@ -300,16 +183,6 @@ public class AstarPathFinder {
 		
 		
 		return success;
-		
 	}
-	//*** 
-	//**初始化数据，
-	//**1.初始化两个hashmap
-	//**2.初始化每一个loc的所有相连接的loc到 edge 链表。
-	
-	
-	
-	
-	
 
 }
