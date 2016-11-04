@@ -10,7 +10,7 @@ public class poly {
 	
 	public poly() {
 		
-		String path = "/Users/apple/Downloads/sfo_poly/poly.csv";
+		String path = "/Users/apple/Downloads/giscup15data-shape//poly.csv";
 		BufferedReader br = null;
 		
 		String line ="";

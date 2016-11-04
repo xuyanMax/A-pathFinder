@@ -8,10 +8,11 @@ public class location {
 	private double id;
 	private double Glength;
 	private double spd;
-	
+	private boolean visited = false;//bfs	
 	private List<location> edge = new ArrayList<location>();;
 	private double Hsteps;//h
 	private double Fsteps;//f
+	private double costSoFar;
 	private location previous;
 	
 	
@@ -22,19 +23,20 @@ public class location {
 	//存储，所有与该结点相连接的结点
 	public void setNodeToEdge(location node) {
 		
+//		if (edge.contains(node)) {
+//			edge.remove(node);
+//
+//			this.edge.add(node);
+//		}
 		this.edge.add(node);
-		
 	}
 	// 复制构造函数
 	public location (location loc){
 		
-		this(loc.getX(), loc.getY(), loc.getId(), loc.getEdge(), loc.getGlength(), loc.getSpd());
+		this(loc.getX(), loc.getY(), loc.getId(), loc.getEdge(), loc.getGlength(), loc.getSpd(), loc.getCostSoFar());
 		
 	}
-	
-
-	
-	public location (double id, double x, double y, double Glength, double spd){
+	public location (double id, double x, double y, double Glength, double spd, boolean visited){
 		
 		this.id = id;
 		this.x = x;
@@ -42,14 +44,12 @@ public class location {
 		this.Glength = Glength;
 		this.spd = spd;
 		this.edge = new ArrayList<location>();
+		this.visited = visited;
 		
 	}
 	public location(){
 		
 	}
-
-
-	
 	public location (double x, double y, double id) {
 		
 		this.x  = x;
@@ -59,21 +59,29 @@ public class location {
 		
 	}
 	
-	public location (double x, double y, double id, List<location>edge) {
+	public location (double x, double y, double id, List<location>edge, double costSoFar) {
 		
 		this.x  = x;
 		this.y  = y;
 		this.id = id;
 		this.edge = edge;	
+		this.costSoFar = costSoFar;
 	}
-	public location (double x, double y, double id, List<location>edge, double Glength, double spd) {
+	public location (double x, double y, double id, List<location>edge, double Glength, double spd, double costSofar) {
 		this.x=x;
 		this.y=y;
 		this.id=id;
 		this.edge=edge;
 		this.Glength=Glength;
 		this.spd=spd;
+		this.costSoFar = costSofar;
 		
+	}
+	public void setVisited(){
+		this.visited = true;
+	}
+	public boolean getVisited(){
+		return this.visited;
 	}
 	
 	
@@ -171,8 +179,12 @@ public class location {
 	public void setPrevious(location previous) {
 		this.previous = previous;
 	}
+	public void setCostSoFar(double costSoFar) {
+		this.costSoFar = costSoFar;
+	}
+	public double getCostSoFar(){
+		return this.costSoFar;
+	}
 	
 	
-	
-
 }

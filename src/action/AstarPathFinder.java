@@ -1,5 +1,7 @@
 package action;
 import java.util.List;
+import java.util.PriorityQueue;
+import java.util.Queue;
 import java.util.Stack;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -7,6 +9,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 
 import entity.location;
+import entity.nodeGlengthComparator;
 
 
 public class AstarPathFinder {
@@ -14,84 +17,56 @@ public class AstarPathFinder {
 	private List<location> openList;
 	private List<location> closeList;
 	
-	
+	private PriorityQueue<location> OPEN;
 	
 	public AstarPathFinder(){
 		
 		// arraList 用于get set
 		//linkedList 用于 remover add
-		openList = new ArrayList<location>();
+//		openList = new ArrayList<location>();
+		
 		closeList = new ArrayList<location>();
-		
-	
-		
+		OPEN = new PriorityQueue<location>(500, new nodeGlengthComparator());
+				
 	}
 	
-	public Stack<location> findPath(location start, location dest, double[][]road, double[][]node, double[][]poly_nodes, 
+	public List<location> findPath(location start, location dest, double[][]road, double[][]node, double[][]poly_nodes, 
 									HashMap<String, Double[]> road_map, HashMap<Double, location> node_map) {
 		
-	// 一旦确定startNode，需要初始化所有nodes 到startNode的G 值和 H 值
-	//不初始化则初始值为0；
-	
-		
-//		List<location> path = new ArrayList <location> ();
-		Stack<location> path = new Stack<location>();
-		
-		openList.add(start);
-		
+		List<location> path = new ArrayList <location>();
+//		openList.add(start);
+		OPEN.add(start);
 		location current;
-		
-		//预先遍历所有node结点，凡事在多边形区域内的结点，则加入到close list，起到排除的目的
 		double[] temp = new double[3];
 		
 		for(int i=0; i<node.length; i++) {
-			
-			//二维数组赋值到一维数组，存储node结点id x y值
-			//传入 isInside函数判断
 			for (int k=0; k<node[0].length;k++) 
 				temp[k] = node[i][k];
-			
-			
 			if (isInside(poly_nodes, temp)) {
-				
-				location inLocation = new location(node[i][1], node[i][2], node[i][0]);
-				
-				closeList.add(inLocation);
-				
-				System.out.println("Node (ID) " + inLocation.getId() + " is added to close list and removed from node hashmap.");
-				
+				location inLocation = new location(node[i][1], node[i][2], node[i][0]);			
+				closeList.add(inLocation);			
+				System.out.println("Node (ID) " + inLocation.getId() + " is added to close list and removed from node hashmap.");				
 			}
 		}
-
-		
 		do{
 			
-			current = getLowestFscoreLocation(openList);
-			
-			closeList.add(current);
-			
-			openList.remove(current);
-			
-			if (closeList.contains(dest)) break;
-			
-			List <location> adjacentLocations = getWalkableAdjacentLocations(current, road, node, node_map);
-				
+//			current = getLowestFscoreLocation(openList);
+			current = OPEN.poll();// retrieves and removes the best (lowest F value.)
+			//System.out.println(current.getGlength());		
+			closeList.add(current);		
+			double G_tmp = 0;
+			//openList.remove(current);	
+			if (closeList.contains(dest)) break;	
+			List <location> adjacentLocations = getWalkableAdjacentLocations(current, road, node, node_map);		
 			for (location lo : adjacentLocations) {
-				
-				//GO next node
-				if (closeList.contains(lo)) {
-					
-					continue;
-				
-				}
-				// 如果相邻点不在openlist，则加入openlist，并对F=G+H 进行计算
-				//G 可以从 node属性中读出，H 调用函数
-				
-			   if (!openList.contains(lo)){
+				if (closeList.contains(lo)) 					
+					continue;				
+			    if (!OPEN.contains(lo)){
 					
 					//优化G 累加G值
 					// +++ lo 到current 的G值
-					lo.setGlength(lo.getGlength() + current.getGlength());
+			    	G_tmp = lo.getGlength() + current.getGlength();
+					lo.setGlength(G_tmp);
 					
 					//计算H值(欧几里得)并存储到lo节点
 					lo.setHSteps(Hsteps(lo,dest));
@@ -102,39 +77,86 @@ public class AstarPathFinder {
 					
 					//设置父节点
 					lo.setPrevious(current);
+					
+					node_map.get(lo.getId()).setCostSoFar(G_tmp);
+				
 
 //					//测试
 //					System.out.println(lo.getGlength() +" "+lo.getFSteps());
 					
 					//添加每一个相邻可通过节点到openList 
-					openList.add(lo);
+					//openList.add(lo);
+					
+					OPEN.add(lo);
+					/*
+					 * 新添加部分，更新walkable 对应openlist 使用priority queue
+					 * openlist 使用arraylist时 注释掉
+					 */
+					
+//					int index = adjacentLocations.indexOf(lo);
+//					adjacentLocations.remove(index);
+//					adjacentLocations.add(lo);
+					//current.setNodeToEdge(lo);
 					
 					
 				} else{
 					
-					int index = openList.indexOf(lo);
-					location lo_compare = openList.get(index);
-					
-					List<location> adj = current.getEdge();
-					int index_adj = adj.indexOf(lo);
-					location lo_tmp = adj.get(index_adj);
-					
-					if(lo_tmp.getGlength() + current.getGlength() < lo_compare.getGlength()) {
-						
-						lo_compare.setGlength(lo_tmp.getGlength() + current.getGlength());
-						lo_compare.setFSteps(Hsteps(lo,dest) + lo_compare.getGlength());
-						lo_compare.setPrevious(current);
-						openList.remove(lo);
-						openList.add(lo_compare);
+					/**
+					 * openlist by ArrayList
+					 * 
+					 */
+				
+//					int index = openList.indexOf(lo);
+//					location lo_compare = openList.get(index);
+//					
+//					List<location> adj = current.getEdge();
+//					int index_adj = adj.indexOf(lo);
+//					location lo_tmp = adj.get(index_adj);
+//					
+//					if(lo_tmp.getGlength() + current.getGlength() < lo_compare.getGlength()) {
+//						
+//						lo_compare.setGlength(lo_tmp.getGlength() + current.getGlength());
+//						lo_compare.setFSteps(Hsteps(lo,dest) + lo_compare.getGlength());
+//						lo_compare.setPrevious(current);
+//						openList.remove(lo);
+//						
+//						openList.add(lo_compare);
 					//	System.out.println("----");
 						
+					
+					/**
+					 * OPEN by PriorityQueue
+					 * 
+					 * 
+					 */
+//					Iterator iterator = OPEN.iterator();
+//					while(iterator.hasNext()) {
+//						if (iterator.next().equals(lo)))
+//
+//					}
+//					List<location> adj = current.getEdge();
+//					int index_adj = adj.indexOf(lo);
+//					location lo_tmp = adj.get(index_adj);
+//					System.out.println(lo_tmp.getGlength() +" "+lo.getGlength());
+					//问题处在 lo_temp 与lo指向同一个对地址 值相同 lo_tmp.getGlength()==lo.getGlength()
+					//地址指向问题 由于无法get到priority queue 中的lo 所以使用的诗walkable中的lo
+					//因此，此lo为最原始状态，不包含积累的g值
+					//todo 解决指向问题：1、遍历open
+					if( lo.getGlength() + current.getGlength() < node_map.get(lo.getId()).getCostSoFar()){
+						//OPEN.remove(lo);
+						System.out.println("not");
+						double tmp = lo.getGlength() + current.getGlength();
+						lo.setGlength(tmp);
+						lo.setFSteps(Hsteps(lo,dest) + lo.getGlength());
+						lo.setPrevious(current);
+						node_map.get(lo.getId()).setCostSoFar(tmp);
+						OPEN.add(lo);
+//						
 					}
-					
-					
-				}
+				}//else
 				
-			}
-		}while(!openList.isEmpty() );
+			}//while(!openList.isEmpty() );
+		}while(OPEN.size()!=0);
 		
 			location destination = null;
 			
@@ -150,15 +172,16 @@ public class AstarPathFinder {
 				
 				System.out.println("The total length between Node " + start.getId() + " and "+ dest.getId()+" is "+ destination.getGlength());
 				
-				//path.add(destination);
-				path.push(destination);
+				path.add(destination);
+//				path.push(destination);
 				//从终点通过向前寻找父节点得到链表结构 path
 				
 				while(destination.getPrevious() != null){
 					
 					destination = destination.getPrevious();
 					
-					path.push(destination);
+				//path.push(destination);
+					path.add(destination);
 				}
 			}
 
@@ -196,10 +219,6 @@ public class AstarPathFinder {
 		}
 		//********************* 对预处理的数据调用 结束 *******************
 		//******************   *******************   ****************
-		
-		
-		
-		
 		return walkableLos;
 	}
 	/**
@@ -211,7 +230,7 @@ public class AstarPathFinder {
 	
 	//从walkable list 选出来后经过计算其中每个节点的F = G + H值
 	//然后从中选择出F值最低的的节点作为新一轮的当前节点 current
-	
+	// used only for openList not OPEN...
 	private location getLowestFscoreLocation(List<location> openList){
 		
 		if(openList == null || openList.size() == 0){
@@ -230,10 +249,7 @@ public class AstarPathFinder {
 			tmpFSteps = lo.getGlength();
 			
 			if(tmpFSteps < minFSteps){
-				
-				
-				minFSteps = tmpFSteps;
-				
+				minFSteps = tmpFSteps;	
 				lowestFlocation = lo;
 			}
 		}
@@ -295,11 +311,9 @@ public class AstarPathFinder {
 		}
 		
 		if (numOfIntersection % 2 == 1) 
-			
 			success = true;
 		
-		
-		return success;
+			return success;
 		
 	}
 	//*** 
