@@ -19,12 +19,10 @@ public class AstarPathFinderTest {
 
 
         List<location> path = new ArrayList<location>();
-//		Stack <location> path = new Stack<location>();
 
         AstarPathFinder AstarPath = new AstarPathFinder();
 
         data file = new data();
-        //file.importHashMap_Road();
 
         double[][] node = file.getNodes();
         double[][] road = file.getRoad();
@@ -52,7 +50,7 @@ public class AstarPathFinderTest {
         System.out.println("Start Node ID: " + startNode.getId());
         System.out.println("End Node ID: " + endNode.getId());
         System.out.println("The program is running.. Please wait.");
-        //设置timer 
+        //设置timer
         long t_start = System.currentTimeMillis();
         path = AstarPath.findPath(startNode, endNode, road, node, poly_nodes, road_map, node_map);
         long t_end = System.currentTimeMillis();
